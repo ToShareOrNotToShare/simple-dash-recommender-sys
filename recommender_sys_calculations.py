@@ -163,7 +163,7 @@ def initialize_frame_for_recommender(df, title, input_column, output_columns, to
             raise IOError(f'You have entered a too short amount of data. Please use different and more words than {title}.')
 
         # create new row based on the entered string
-        new_row = pd.DataFrame({'texts':title,'cleaned_column':cleaned_title}, index=[0])
+        new_row = pd.DataFrame({input_column:title,'cleaned_column':cleaned_title}, index=[0])
 
         print(new_row)
 
