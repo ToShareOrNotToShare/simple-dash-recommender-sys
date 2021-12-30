@@ -68,7 +68,7 @@ def dataframe_column_to_cosine_sim(df, column):
     return corpus, tfidf_matrix, cosine_sim
 
 
-def get_recommendations(title, cosine_sim, df, input_column, output_column, top_n):
+def get_recommendations(title, cosine_sim, df, input_column, output_columns, top_n):
 
     """Create item recommendations based on cosine similarity
 
@@ -77,7 +77,7 @@ def get_recommendations(title, cosine_sim, df, input_column, output_column, top_
         cosine_sim      (array):    cosine similarity matrix
         df              (obj):      DataFrame
         input_column    (string):   Column name for text input
-        output_column   (string):   name for column to show in output
+        output_columns  (list):     name(s) for columns to show in output
         top_n           (int):      amount of similar observations, 1 < top_n < 20
 
     Returns:
@@ -115,22 +115,28 @@ def get_recommendations(title, cosine_sim, df, input_column, output_column, top_
 
     sim_values = [i[1] for i in sim_scores]
 
-    return_df = df[[output_column]].iloc[item_indices]
+    output_df = df[output_columns].iloc[item_indices]
     
-    return_df.reset_index(drop = True, inplace=True)
+    output_df.reset_index(drop = True, inplace=True)
 
     sim_df = pd.DataFrame([[str(round(i*100,2))+' %'] for i in sim_values], columns = ['similarity'])
 
-    print(return_df)
+    print(f'this is return df: {output_df}\n----')
 
-    return_df_final = pd.concat([return_df, sim_df], axis=1)
+    input_df = df[[input_column]].iloc[item_indices]
+    input_df.reset_index(drop = True, inplace=True)
 
-    print(f'this is return df_final: {return_df_final}')
+    # only take first fifty characters
+    input_truncated = input_df[input_column].apply(lambda x: x[:50])
+
+    return_final = pd.concat([input_truncated, output_df, sim_df], axis=1)
+
+    print(f'this is return df_final: {return_final}')
 
     # return the top n most similar items
-    return return_df_final
+    return return_final
 
-def initialize_frame_for_recommender(df, title, input_column, output_column, top_n, new_string = False):
+def initialize_frame_for_recommender(df, title, input_column, output_columns, top_n, new_string = False):
 
     """Prepare a dataframe and return recommendations
 
@@ -138,7 +144,7 @@ def initialize_frame_for_recommender(df, title, input_column, output_column, top
         df              (obj):      DataFrame with tasks
         title           (string):   Item name
         input_column    (string):   Column name from text input
-        output_column   (string):   which column to display for recommendation
+        output_columns  (list):     which columns to display for recommendation
         top_n           (int):      Amount of similar observations
         new_string      (bool):     If new title is being added to the dataframe
 
@@ -176,4 +182,4 @@ def initialize_frame_for_recommender(df, title, input_column, output_column, top
     # prepare text 
     corpus, tfidf_matrix, cosine_sim = dataframe_column_to_cosine_sim(df, 'cleaned_column')
 
-    return get_recommendations(title, cosine_sim, df, input_column, output_column, top_n)
+    return get_recommendations(title, cosine_sim, df, input_column, output_columns, top_n)
