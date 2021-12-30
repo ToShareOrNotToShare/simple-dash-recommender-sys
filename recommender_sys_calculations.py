@@ -68,7 +68,7 @@ def dataframe_column_to_cosine_sim(df, column):
     return corpus, tfidf_matrix, cosine_sim
 
 
-def get_recommendations(title, cosine_sim, df, column, top_n):
+def get_recommendations(title, cosine_sim, df, input_column, output_column, top_n):
 
     """Create item recommendations based on cosine similarity
 
@@ -76,7 +76,8 @@ def get_recommendations(title, cosine_sim, df, column, top_n):
         title           (string):   Item name
         cosine_sim      (array):    cosine similarity matrix
         df              (obj):      DataFrame
-        column          (string):   Column name
+        input_column    (string):   Column name for text input
+        output_column   (string):   name for column to show in output
         top_n           (int):      amount of similar observations, 1 < top_n < 20
 
     Returns:
@@ -94,7 +95,7 @@ def get_recommendations(title, cosine_sim, df, column, top_n):
     df.reset_index(inplace=True, drop=True)
 
     # generate mapping between titles and index
-    indices = pd.Series(df.index, index=df[column])
+    indices = pd.Series(df.index, index=df[input_column])
 
     # get index of item that matches title
     idx = indices[title]
@@ -114,7 +115,7 @@ def get_recommendations(title, cosine_sim, df, column, top_n):
 
     sim_values = [i[1] for i in sim_scores]
 
-    return_df = df[[column]].iloc[item_indices]
+    return_df = df[[output_column]].iloc[item_indices]
     
     return_df.reset_index(drop = True, inplace=True)
 
@@ -124,19 +125,20 @@ def get_recommendations(title, cosine_sim, df, column, top_n):
 
     return_df_final = pd.concat([return_df, sim_df], axis=1)
 
-    print(return_df_final)
+    print(f'this is return df_final: {return_df_final}')
 
     # return the top n most similar items
     return return_df_final
 
-def initialize_frame_for_recommender(df, title, column, top_n, new_string = False):
+def initialize_frame_for_recommender(df, title, input_column, output_column, top_n, new_string = False):
 
     """Prepare a dataframe and return recommendations
 
     Args: 
         df              (obj):      DataFrame with tasks
         title           (string):   Item name
-        column          (string):   Column name
+        input_column    (string):   Column name from text input
+        output_column   (string):   which column to display for recommendation
         top_n           (int):      Amount of similar observations
         new_string      (bool):     If new title is being added to the dataframe
 
@@ -164,7 +166,7 @@ def initialize_frame_for_recommender(df, title, column, top_n, new_string = Fals
         print(f'this is new df before cleaning: {df}')
 
 
-    df['cleaned_column'] = df[column].apply(lambda x: cleaner((str(x))))
+    df['cleaned_column'] = df[input_column].apply(lambda x: cleaner((str(x))))
     print(f'this is new df: {df}')
 
     #### corner case, what if entered text is exactly something that was already in the dataframe?
@@ -174,4 +176,4 @@ def initialize_frame_for_recommender(df, title, column, top_n, new_string = Fals
     # prepare text 
     corpus, tfidf_matrix, cosine_sim = dataframe_column_to_cosine_sim(df, 'cleaned_column')
 
-    return get_recommendations(title, cosine_sim, df, column, top_n)
+    return get_recommendations(title, cosine_sim, df, input_column, output_column, top_n)
