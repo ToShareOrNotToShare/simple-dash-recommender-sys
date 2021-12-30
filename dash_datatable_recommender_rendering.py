@@ -11,13 +11,14 @@ from recommender_sys_calculations import *
 pd.set_option('mode.chained_assignment',None)
 
 
-def create_dash_data_table_with_recommendations(df, column ,top_n):
+def create_dash_data_table_with_recommendations(df, input_column, output_columns, top_n):
 
     """Prints customized welcome string based on time
 
     Args: 
         df              (object):   DataFrame
-        column          (string):   Name of the column
+        input_column    (string):   Name of the text input
+        output_columns  (list):   wished columns to display
         top_n           (integer):  Amount of top recommendations to show in data table
 
     Returns:
@@ -29,13 +30,16 @@ def create_dash_data_table_with_recommendations(df, column ,top_n):
 
     ########## future: could also take comments and first step into account? ###########
 
-    static_view_title = df[column].iloc[0]
+    static_view_title = df[input_column].iloc[0]
 
-    static_recommendation = initialize_frame_for_recommender(df,
-                                                static_view_title,column,top_n)
+    """    # get index from title, potentially interesting for cleaner interface
+    static_view_index = df.index[df[output_columns] == static_view_title][0]"""
 
-    """    # prototype which is always displayed
-    static_view_open_tasks = df.head(top_n)"""
+    static_recommendation = initialize_frame_for_recommender(   df,
+                                                                static_view_title,
+                                                                input_column,
+                                                                output_columns,
+                                                                top_n)
 
 
     app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -45,7 +49,7 @@ def create_dash_data_table_with_recommendations(df, column ,top_n):
                             html.Div([
                             
                             html.Div([
-                                dcc.Input(id='input-1-submit', type='text', placeholder='What do you feel like doing?', 
+                                dcc.Input(id='input-1-submit', type='text', placeholder='What do you feel to get recommended?', 
                                 # using autocomplete here to let the browser make a judgment
                                 autoComplete='on', style={'width': '74%','display': 'inline-block'}),
                                 # have some vertical distance below button
@@ -59,7 +63,7 @@ def create_dash_data_table_with_recommendations(df, column ,top_n):
                                 html.Div(
                                     [  
                                         html.H3(id='task_recommendations_title',
-                                                children=f'Top {top_n} Recommendations for "{static_view_title}"',
+                                                children=f'Top {top_n} Recommendations for: \n\n"{static_view_title}"',
                                                 style={'margin-right': '2em'})
                                     ],
                                 ),
@@ -129,8 +133,12 @@ def create_dash_data_table_with_recommendations(df, column ,top_n):
 
             print(f'\nthis is our current input value: {value}')
 
-            new_recommendations = initialize_frame_for_recommender(df,
-                                                    value ,'texts',top_n, True)
+            new_recommendations = initialize_frame_for_recommender( df,
+                                                                    value,
+                                                                    input_column, 
+                                                                    output_columns,
+                                                                    top_n,
+                                                                    True)
 
             new_recommendations.reset_index(drop = True, inplace=True)
 
@@ -140,9 +148,6 @@ def create_dash_data_table_with_recommendations(df, column ,top_n):
             return new_recommendations.to_dict('records'), recommendations_title
 
     return app
-
-                        
-
 
 
 if __name__ == '__main__':
@@ -195,7 +200,7 @@ if __name__ == '__main__':
     # define top n tasks
     top_n = 5
 
-    app = create_dash_data_table_with_recommendations(data, 'texts', 5)
+    app = create_dash_data_table_with_recommendations(data, 'texts', ['texts'], 5)
 
 
     app.run_server(debug=True)
