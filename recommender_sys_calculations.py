@@ -129,9 +129,13 @@ def get_recommendations(title, cosine_sim, df, input_column, output_columns, top
     # only take first fifty characters
     input_truncated = input_df[input_column].apply(lambda x: x[:50])
 
-    return_final = pd.concat([input_truncated, output_df, sim_df], axis=1)
+    # removed the output_df here and have only one text column now
+    return_final = pd.concat([input_truncated, sim_df], axis=1)
+
+    #del return_final[return_final.columns[0]]
 
     print(f'this is return df_final: {return_final}')
+    print(f'this is the shape of return df_final: {return_final.shape}')
 
     # return the top n most similar items
     return return_final
