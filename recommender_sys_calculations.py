@@ -127,9 +127,9 @@ def get_recommendations(title, cosine_sim, df, input_column, output_columns, top
     input_df.reset_index(drop = True, inplace=True)
 
     # only take first fifty characters
-    input_truncated = input_df[input_column].apply(lambda x: x[:50])
+    input_truncated = input_df[input_column].apply(lambda x: x[:120])
 
-    # removed the output_df here and have only one text column now
+    # removed the truncated or output_df here and have only one text column now
     return_final = pd.concat([input_truncated, sim_df], axis=1)
 
     #del return_final[return_final.columns[0]]
