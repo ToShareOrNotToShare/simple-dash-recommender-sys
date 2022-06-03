@@ -7,9 +7,10 @@ from dash.dependencies import Input, Output, State
 
 from recommender_sys_calculations import *
 
+nltk.download('omw-1.4')
+
 # suppressing chained calculation warnings, comment if you want them to reappear for checks
 pd.set_option('mode.chained_assignment',None)
-
 
 def create_dash_data_table_with_recommendations(df, input_column, output_columns, top_n):
 
@@ -26,9 +27,6 @@ def create_dash_data_table_with_recommendations(df, input_column, output_columns
 
     """
 
-
-
-    ########## future: could also take comments and first step into account? ###########
 
     static_view_title = df[input_column].iloc[0]
 
@@ -153,54 +151,19 @@ def create_dash_data_table_with_recommendations(df, input_column, output_columns
 if __name__ == '__main__':
 
     # example data input
-    data = [
-            ['About the job Job name: Machine Learning and Data Engineer'],
-            ['Job type: Full time (100%)'],
-            ['Location: Zürich, Switzerland (possibility to work remotely, depending on experience)'],
-            ['Description Are you attracted by the opportunity to work at an exciting European travel tech startup, contributing to developing the technological backbone?'],
-            ['If so, we can’t wait to hear from you!'],
-            ['About Us The Trip Boutique is an award-winning AI-powered personal travel advisory platform that instantly designs bespoke and bookable travel itineraries.'],
-            ['We are looking for a hands-on Machine Learning and Data Engineer'],
-            ['With experience in Natural Language Processing in Zürich (Switzerland) to complete our highly talented tech team.'],
-            ['You will work directly with our CEO, CTO, Operations Lead and Tech Lead.'],
-            ['After raising a seed funding round from high proﬁle investors from the industry'],
-            ['We have a fully-fledged product built on state-of-the-art technologies serving thousands of B2C clients as well as B2B partners.'],
-            ['What we offer: An exceptional opportunity to help shape and create technology; '],
-            ['Take responsibility for an essential part of our product and software development;'],
-            ['A chance for you to combine a variety of your tech skills and learn every day;'],
-            ['Be part of an innovative, award-winning travel tech start-up;'],
-            ['Be involved in different stages of a start-up and be part of scaling up and growing a business;'],
-            ['Work on an exciting product;'],
-            ['A creative and supportive environment where every team member is encouraged to voice their ideas, thoughts, and visions;'],
-            ['Be actively part of a smart, fun-loving and international team with very ambitious goals.'],
-            ['Your job includes: Working closely with the CEO, CTO, Operations Lead and the software engineering team to create and improve ML/AI enabled software and products;'],
-            ['Helping identify, create and implement data-based, machine-learning and/or AI-based product improvements to meet customer and business demands;'],
-            ['Implementing algorithms, models and tools aligned with our data science strategies;'],
-            ['Searching for and selecting datasets, processing and cleansing data, and performing data analysis (incl. integrity and quality);'],
-            ['Writing reusable, tested and efﬁcient code;'],
-            ['Improving and maintaining existing products and software like our recommender system and category predictor;'],
-            ['Evaluating and implementing new ML solutions to further scale our products; '],
-            ['Documenting code independently;'],
-            ['Visualizing and analyzing different kinds of business and/or user data;'],
-            ['Improving process automation and scalability;'],
-            ['What you bring: Degree in Computer Science, Data Science, Machine Learning or related fields;'],
-            ['Proven track record of ML related projects; Previous exposure to Natural Language Processing;'],
-            ['Good understanding of Python, min. 2 years; Good understanding of SQL;'],
-            ['Good understanding of microservice architecture; Good understanding of Git;'],
-            ['English Proﬁciency, written and spoken; Capacity to work on your own and independently;'],
-            ['Ability to work in a rapidly evolving startup environment; A personal interest in the travel industry;'],
-            ['Passion for creating solutions that make people’s lives easier; Dedication, ﬂexibility and a positive “can-do” attitude.'],
-            ['Any of these would be a plus: Experience with Docker; Experience with Message Brokers like RabbitMQ Experience with cloud services (preferably GCP);'],
-            ['Experience with Data Visualization tools like Grafana, Tableau or Google Data Studio']
+    with open('input.txt') as f:
+        data = f.readlines()
 
-    ]
+    cleaned_text = [cleaner(elem) for elem in data]
 
-    df = pd.DataFrame(data, columns = ['texts'])
+    cleaned_text_longer_than_one = [elem for elem in cleaned_text if len(elem.split())>1]
+
+    df = pd.DataFrame(cleaned_text_longer_than_one, columns = ['texts'])
 
     # define top n tasks
     top_n = 5
 
-    app = create_dash_data_table_with_recommendations(data, 'texts', ['texts'], 5)
+    app = create_dash_data_table_with_recommendations(df, 'texts', ['texts'], 5)
 
 
     app.run_server(debug=True)
