@@ -1,6 +1,7 @@
 # simple-dash-recommender-sys
 
-Create custom recommendations from texts (e.g. .txt file) based on text input field rendered as HTML in Dash. 
+Create custom recommendations from texts (e.g. any .txt file) based on text input field rendered as HTML in Dash. 
+
 The recommendations result from calculations of the [Cosine Similarity](https://en.wikipedia.org/wiki/Cosine_similarity) between the text vectors created by the Term Frequency - Inverse Document Frequency ([TF-IDF](https://en.wikipedia.org/wiki/Tf–idf)).
 
 Default view of the recommender system:
