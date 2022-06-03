@@ -140,7 +140,7 @@ def create_dash_data_table_with_recommendations(df, input_column, output_columns
 
             new_recommendations.reset_index(drop = True, inplace=True)
 
-            recommendations_title = f'Top {top_n} Recommendations for "{value}"'
+            recommendations_title = f'Top {top_n} truncated recommendations for "{value}"'
 
             # setting values for integrating the data from dataframe into the datatable
             return new_recommendations.to_dict('records'), recommendations_title
